@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -9,6 +11,7 @@ import 'package:flutter_easebuzz/features/payments/customer/cutsomer_model.dart'
 import 'package:flutter_easebuzz/features/payments/services/loading.services.dart';
 import 'package:flutter_easebuzz/features/product/product.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:toastification/toastification.dart';
 
 import '../payments/services/payment.services.dart';
 import '../product/model/product.model.dart';
@@ -30,7 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final phoneController = TextEditingController(text: '9163482078');
   final payment = PaymentStore();
   final loading = LoadingServices();
-  final MethodChannel _channel = const MethodChannel("easebuzz");
+
+  static MethodChannel _channel = const MethodChannel("easebuzz");
 
   @override
   Widget build(BuildContext context) {
@@ -140,11 +144,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                       "access_key": accessKey,
                                       "pay_mode": payMode
                                     };
-                                    final paymentResponse =
+                                    final Map paymentResponse =
                                         await _channel.invokeMethod(
                                             "payWithEasebuzz", parameters);
+                                    String result = paymentResponse['result'];
 
-                                    print(paymentResponse);
+                                    if (result == 'payment_successfull') {
+                                      toastification.show(
+                                        title:
+                                            const Text("Payment Successfull"),
+                                        description: const Text(
+                                            "Payment Successfull Now Go To Next Screen"),
+                                        type: ToastificationType.success,
+                                        showProgressBar: false,
+                                        dragToClose: true,
+                                      );
+                                    } else if (result == 'payment_failed') {
+                                      toastification.show(
+                                        title: const Text("Payment Failed"),
+                                        description: const Text(
+                                            "Payment Failed Please Try Again"),
+                                        type: ToastificationType.error,
+                                        showProgressBar: false,
+                                        dragToClose: true,
+                                      );
+                                    } else {
+                                      toastification.show(
+                                        title: const Text(
+                                            "Payment Failed User Cancelled"),
+                                        description: const Text(
+                                            "Payment Failed Cancelled by User"),
+                                        type: ToastificationType.error,
+                                        showProgressBar: false,
+                                        dragToClose: true,
+                                      );
+                                    }
                                   }
                                 },
                           child: loading.isLoading
@@ -161,4 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ));
   }
+}
+
+class EaseBuzzPayment {
+  static const MethodChannel _channel = MethodChannel('easebuzz');
 }

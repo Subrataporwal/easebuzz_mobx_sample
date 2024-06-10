@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'core/themes.dart';
@@ -8,6 +10,7 @@ import 'core/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
 
   await Hive.initFlutter();
 
